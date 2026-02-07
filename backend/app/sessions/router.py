@@ -3,13 +3,21 @@ from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy import case
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
 
+from app.agents.transcript_parser import parse_transcript
 from app.core.database import get_session
+from app.models.preference import Preference
 from app.models.session import Session, SessionStatus
 from app.models.transcript import Transcript
-from app.sessions.schemas import SessionCreate, SessionRead, TranscriptUpload
+from app.sessions.schemas import (
+    PreferenceRead,
+    SessionCreate,
+    SessionRead,
+    TranscriptUpload,
+)
 
 router = APIRouter(prefix="/api/sessions", tags=["sessions"])
 
@@ -76,7 +84,23 @@ async def upload_transcript(
     transcript = Transcript(session_id=session_id, raw_text=body.raw_text)
     db.add(transcript)
 
-    # Update session status to parsed (parsing agent will be wired in Increment 2)
+    # Parse transcript with OpenAI agent to extract preferences
+    result = await parse_transcript(body.raw_text)
+
+    # Save each extracted preference to the database
+    for pref in result["preferences"]:
+        preference = Preference(
+            session_id=session_id,
+            category=pref["category"],
+            value=pref["value"],
+            confidence=pref["confidence"],
+            source="transcript",
+        )
+        db.add(preference)
+
+    # Update session with summary and status
+    if result["summary"]:
+        session.summary = result["summary"]
     session.status = SessionStatus.parsed
     session.updated_at = datetime.now(timezone.utc)
     db.add(session)
@@ -89,5 +113,35 @@ async def upload_transcript(
             "transcript_id": str(transcript.id),
             "session_id": str(session_id),
             "status": "parsed",
+            "preferences_count": len(result["preferences"]),
         }
     )
+
+
+@router.get("/{session_id}/preferences")
+async def get_preferences(
+    session_id: uuid.UUID,
+    db: AsyncSession = Depends(get_session),
+) -> dict:
+    session = await db.get(Session, session_id)
+    if not session:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    # Order by confidence (high first) then category alphabetically
+    confidence_order = case(
+        {"high": 0, "medium": 1, "low": 2},
+        value=Preference.confidence,  # type: ignore[arg-type]
+        else_=3,
+    )
+
+    result = await db.exec(
+        select(Preference)
+        .where(Preference.session_id == session_id)  # type: ignore[arg-type]
+        .order_by(confidence_order, Preference.category)  # type: ignore[arg-type]
+    )
+    preferences = result.all()
+
+    data = [
+        PreferenceRead.model_validate(p).model_dump(mode="json") for p in preferences
+    ]
+    return api_response(data=data)

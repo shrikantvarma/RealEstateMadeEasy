@@ -27,3 +27,12 @@ class TranscriptRead(SQLModel):
     session_id: uuid.UUID
     raw_text: str
     uploaded_at: datetime
+
+
+class PreferenceRead(SQLModel):
+    id: uuid.UUID
+    category: str
+    value: str
+    confidence: str
+    source: str
+    is_confirmed: bool

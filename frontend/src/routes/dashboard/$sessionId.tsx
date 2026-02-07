@@ -1,12 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Info, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
+import type { PreferenceData } from "@/lib/api";
 import { StatusBadge } from "@/components/dashboard/StatusBadge";
+import { PreferenceCard } from "@/components/dashboard/PreferenceCard";
 
 export const Route = createFileRoute("/dashboard/$sessionId")({
   component: SessionDetailPage,
 });
+
+const confidenceOrder: Record<PreferenceData["confidence"], number> = {
+  high: 0,
+  medium: 1,
+  low: 2,
+};
 
 function SessionDetailPage() {
   const { sessionId } = Route.useParams();
@@ -18,6 +26,19 @@ function SessionDetailPage() {
       if (res.error) throw new Error(res.error.message);
       return res.data!;
     },
+  });
+
+  const {
+    data: preferences,
+    isLoading: prefsLoading,
+  } = useQuery({
+    queryKey: ["sessions", sessionId, "preferences"],
+    queryFn: async () => {
+      const res = await api.sessions.getPreferences(sessionId);
+      if (res.error) throw new Error(res.error.message);
+      return res.data!;
+    },
+    enabled: !!session && session.status !== "parsing",
   });
 
   if (isLoading) {
@@ -37,6 +58,12 @@ function SessionDetailPage() {
   }
 
   const chatLink = `${window.location.origin}/chat/${session.id}`;
+
+  const sortedPreferences = preferences
+    ? [...preferences].sort(
+        (a, b) => confidenceOrder[a.confidence] - confidenceOrder[b.confidence],
+      )
+    : [];
 
   return (
     <div className="p-8 max-w-5xl">
@@ -58,7 +85,7 @@ function SessionDetailPage() {
       {session.status === "parsing" ? (
         <div className="rounded-xl bg-surface-2 border border-border/50 p-12 text-center">
           <Loader2 className="h-10 w-10 animate-spin text-accent mx-auto mb-4" />
-          <p className="text-lg font-medium">Analyzing transcript…</p>
+          <p className="text-lg font-medium">Analyzing transcript...</p>
           <p className="text-sm text-muted-foreground mt-1">
             Extracting preferences and signals
           </p>
@@ -69,12 +96,41 @@ function SessionDetailPage() {
             <h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
               Extracted Preferences
             </h2>
-            <div className="rounded-xl bg-surface-2 border border-border/50 p-6 text-center text-muted-foreground">
-              <p className="text-sm">
-                Preference extraction will appear here after transcript parsing
-                is wired up (Increment 2).
-              </p>
-            </div>
+
+            {session.summary && (
+              <div className="flex items-start gap-2.5 rounded-xl bg-accent/8 border border-accent/15 px-4 py-3">
+                <Info className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+                <p className="text-sm text-foreground/80 leading-relaxed">
+                  {session.summary}
+                </p>
+              </div>
+            )}
+
+            {prefsLoading ? (
+              <div className="rounded-xl bg-surface-2 border border-border/50 p-6 flex items-center justify-center">
+                <Loader2 className="h-5 w-5 animate-spin text-accent" />
+              </div>
+            ) : sortedPreferences.length === 0 ? (
+              <div className="rounded-xl bg-surface-2 border border-border/50 p-6 text-center text-muted-foreground">
+                <p className="text-sm">
+                  No preferences extracted yet. Upload a transcript to get
+                  started.
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {sortedPreferences.map((pref) => (
+                  <PreferenceCard
+                    key={pref.id}
+                    category={pref.category}
+                    value={pref.value}
+                    confidence={pref.confidence}
+                    source={pref.source}
+                    isConfirmed={pref.is_confirmed}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">

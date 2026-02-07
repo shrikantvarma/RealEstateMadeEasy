@@ -38,6 +38,15 @@ export interface SessionData {
   updated_at: string;
 }
 
+export interface PreferenceData {
+  id: string;
+  category: string;
+  value: string;
+  confidence: "low" | "medium" | "high";
+  source: "transcript" | "chat" | "both";
+  is_confirmed: boolean;
+}
+
 export const api = {
   sessions: {
     list: () => request<SessionData[]>("/sessions"),
@@ -58,5 +67,8 @@ export const api = {
           body: JSON.stringify({ raw_text }),
         },
       ),
+
+    getPreferences: (sessionId: string) =>
+      request<PreferenceData[]>(`/sessions/${sessionId}/preferences`),
   },
 };
