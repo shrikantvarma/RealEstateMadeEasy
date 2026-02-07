@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import type { PreferenceData } from "@/lib/api";
 import { StatusBadge } from "@/components/dashboard/StatusBadge";
 import { PreferenceCard } from "@/components/dashboard/PreferenceCard";
+import { BuyerProfilePanel } from "@/components/dashboard/BuyerProfilePanel";
 
 export const Route = createFileRoute("/dashboard/$sessionId")({
   component: SessionDetailPage,
@@ -26,6 +27,8 @@ function SessionDetailPage() {
       if (res.error) throw new Error(res.error.message);
       return res.data!;
     },
+    refetchInterval: (query) =>
+      query.state.data?.status === "chat_active" ? 5000 : false,
   });
 
   const {
@@ -133,16 +136,7 @@ function SessionDetailPage() {
             )}
           </div>
 
-          <div className="space-y-4">
-            <h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              Buyer Profile
-            </h2>
-            <div className="rounded-xl border-2 border-dashed border-border bg-surface-3 p-6 text-center text-muted-foreground">
-              <p className="text-sm">
-                Profile builds after your buyer completes their chat.
-              </p>
-            </div>
-          </div>
+          <BuyerProfilePanel session={session} />
         </div>
       )}
 

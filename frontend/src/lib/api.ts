@@ -56,6 +56,30 @@ export interface ChatMessageData {
   created_at: string;
 }
 
+export interface ScoredPreference {
+  category: string;
+  value: string;
+  score: number;
+  confidence: string;
+  notes: string;
+}
+
+export interface ScoredPreferencesPayload {
+  scored_preferences: ScoredPreference[];
+  deal_breakers: string[];
+  nice_to_haves: string[];
+  budget_summary: string;
+  overall_readiness: "exploring" | "active" | "ready_to_buy";
+  profile_summary: string;
+}
+
+export interface BuyerProfileData {
+  id: string;
+  session_id: string;
+  scored_preferences: ScoredPreferencesPayload;
+  generated_at: string;
+}
+
 export const api = {
   sessions: {
     list: () => request<SessionData[]>("/sessions"),
@@ -79,6 +103,14 @@ export const api = {
 
     getPreferences: (sessionId: string) =>
       request<PreferenceData[]>(`/sessions/${sessionId}/preferences`),
+
+    getProfile: (sessionId: string) =>
+      request<BuyerProfileData>(`/sessions/${sessionId}/profile`),
+
+    generateProfile: (sessionId: string) =>
+      request<BuyerProfileData>(`/sessions/${sessionId}/generate-profile`, {
+        method: "POST",
+      }),
   },
 
   chat: {

@@ -36,3 +36,10 @@ class PreferenceRead(SQLModel):
     confidence: str
     source: str
     is_confirmed: bool
+
+
+class BuyerProfileRead(SQLModel):
+    id: uuid.UUID
+    session_id: uuid.UUID
+    scored_preferences: dict
+    generated_at: datetime
