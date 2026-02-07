@@ -8,8 +8,9 @@ import {
   type FormEvent,
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Send, Loader2, AlertCircle } from "lucide-react";
+import { Home, Send, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import type { ChatMessageData } from "@/lib/api";
 import { cn } from "@/lib/utils";
@@ -143,6 +144,7 @@ function ChatPage() {
   const [inputValue, setInputValue] = useState("");
   const [sendError, setSendError] = useState<string | null>(null);
   const [initialised, setInitialised] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
 
   /* ---- Refs ---- */
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -192,6 +194,16 @@ function ChatPage() {
       abortRef.current?.abort();
     };
   }, []);
+
+  /* ---- Finish chat + auto-generate profile ---- */
+  const finishMutation = useMutation({
+    mutationFn: async () => {
+      const res = await api.sessions.generateProfile(sessionId);
+      if (res.error) throw new Error(res.error.message);
+      return res.data!;
+    },
+    onSuccess: () => setIsComplete(true),
+  });
 
   /* ---- Send message with SSE streaming ---- */
   const sendMessage = useCallback(
@@ -445,48 +457,78 @@ function ChatPage() {
       </AnimatePresence>
 
       {/* Input area */}
-      <div className="shrink-0 border-t border-border/50 bg-surface-2">
-        <form
-          onSubmit={handleSubmit}
-          className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-2"
-        >
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            placeholder={
-              isStreaming ? "Waiting for response..." : "Type your message..."
-            }
-            disabled={isStreaming}
-            autoComplete="off"
-            className={cn(
-              "flex-1 bg-surface-3 rounded-full px-4 py-2.5 text-sm",
-              "placeholder:text-muted-foreground",
-              "border border-border/50",
-              "outline-none focus:border-accent focus:ring-2 focus:ring-accent/20",
-              "transition-all duration-200",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-            )}
-          />
-          <Button
-            type="submit"
-            size="icon"
-            disabled={isStreaming || !inputValue.trim()}
-            className={cn(
-              "h-10 w-10 rounded-full shrink-0 transition-all duration-200",
-              inputValue.trim() && !isStreaming
-                ? "bg-accent text-accent-foreground hover:bg-accent/90"
-                : "bg-muted text-muted-foreground",
-            )}
+      {isComplete ? (
+        <div className="shrink-0 border-t border-border/50 bg-surface-2">
+          <div className="max-w-2xl mx-auto px-4 py-6 text-center">
+            <CheckCircle2 className="h-6 w-6 text-emerald-500 mx-auto mb-2" />
+            <p className="text-sm font-medium">
+              Thanks for sharing your preferences!
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Your agent now has a detailed profile to find you the perfect home.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="shrink-0 border-t border-border/50 bg-surface-2">
+          <form
+            onSubmit={handleSubmit}
+            className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-2"
           >
-            {isStreaming ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
+            {messages.length > 1 && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={isStreaming || finishMutation.isPending}
+                onClick={() => finishMutation.mutate()}
+                className="shrink-0 rounded-full text-xs h-10 px-4"
+              >
+                {finishMutation.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  "I'm done"
+                )}
+              </Button>
             )}
-          </Button>
-        </form>
-      </div>
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder={
+                isStreaming ? "Waiting for response..." : "Type your message..."
+              }
+              disabled={isStreaming || finishMutation.isPending}
+              autoComplete="off"
+              className={cn(
+                "flex-1 bg-surface-3 rounded-full px-4 py-2.5 text-sm",
+                "placeholder:text-muted-foreground",
+                "border border-border/50",
+                "outline-none focus:border-accent focus:ring-2 focus:ring-accent/20",
+                "transition-all duration-200",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+              )}
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={isStreaming || !inputValue.trim() || finishMutation.isPending}
+              className={cn(
+                "h-10 w-10 rounded-full shrink-0 transition-all duration-200",
+                inputValue.trim() && !isStreaming
+                  ? "bg-accent text-accent-foreground hover:bg-accent/90"
+                  : "bg-muted text-muted-foreground",
+              )}
+            >
+              {isStreaming ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+            </Button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

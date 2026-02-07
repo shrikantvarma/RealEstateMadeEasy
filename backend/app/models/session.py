@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timezone
 from enum import Enum
 
-from sqlalchemy import Column, DateTime, String
+from sqlalchemy import Column, DateTime, String, Text
 from sqlmodel import Field, SQLModel
 
 
@@ -18,7 +18,7 @@ class Session(SQLModel, table=True):
 
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     buyer_name: str | None = Field(default=None, max_length=255)
-    summary: str | None = Field(default=None, max_length=255)
+    summary: str | None = Field(default=None, sa_column=Column(Text, nullable=True))
     # Store as VARCHAR, not native Postgres ENUM
     status: str = Field(
         default=SessionStatus.parsing.value,

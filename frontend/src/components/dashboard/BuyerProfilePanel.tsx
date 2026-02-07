@@ -96,8 +96,7 @@ interface BuyerProfilePanelProps {
 
 export function BuyerProfilePanel({ session }: BuyerProfilePanelProps) {
   const queryClient = useQueryClient();
-  const canGenerate =
-    session.status === "parsed" || session.status === "chat_active";
+  const canGenerate = session.status === "chat_active";
   const isComplete = session.status === "complete";
 
   /* fetch profile when status is complete */
