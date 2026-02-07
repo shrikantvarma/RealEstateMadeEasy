@@ -47,6 +47,15 @@ export interface PreferenceData {
   is_confirmed: boolean;
 }
 
+export interface ChatMessageData {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  strategy_used: string | null;
+  turn_number: number;
+  created_at: string;
+}
+
 export const api = {
   sessions: {
     list: () => request<SessionData[]>("/sessions"),
@@ -70,5 +79,21 @@ export const api = {
 
     getPreferences: (sessionId: string) =>
       request<PreferenceData[]>(`/sessions/${sessionId}/preferences`),
+  },
+
+  chat: {
+    getMessages: (sessionId: string) =>
+      request<ChatMessageData[]>(`/chat/${sessionId}/messages`),
+
+    sendMessage: async (
+      sessionId: string,
+      content: string,
+    ): Promise<Response> => {
+      return fetch(`${API_BASE}/chat/${sessionId}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+    },
   },
 };
