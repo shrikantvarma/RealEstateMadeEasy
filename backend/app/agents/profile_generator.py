@@ -24,27 +24,38 @@ optionally, the full chat history for additional context.
 Your job is to synthesize everything into a comprehensive buyer profile.
 
 Instructions:
-1. **Score every preference** on a 1-10 importance scale based on how \
-   critical it is to the buyer. A score of 10 means non-negotiable; 1 means \
-   barely mentioned.
-2. **Assign confidence** ("low", "medium", "high") to each score based on \
+1. **Extract NEW preferences from the chat** — The chat often reveals \
+   preferences NOT in the original list (e.g., "we need a library", "must \
+   have a home office", "want a pool"). Add these as new scored preferences \
+   with source context. Be thorough — every stated want, need, or preference \
+   from the chat should appear as a scored preference.
+2. **Score every preference** on a 1-10 importance scale based on how \
+   critical it is to the buyer. Use the buyer's own language as a guide:
+   - "must have", "definitely need", "non-negotiable" → 9-10
+   - "really want", "important to us" → 7-8
+   - "would be nice", "ideally" → 4-6
+   - "maybe", "not sure" → 1-3
+3. **Assign confidence** ("low", "medium", "high") to each score based on \
    how clearly the buyer expressed the preference.
-3. **Identify deal breakers** — items the buyer absolutely will not \
-   compromise on (e.g., "must have 3+ bedrooms", "budget under $500k").
-4. **Identify nice-to-haves** — things the buyer would like but can flex on \
-   (e.g., "pool would be great", "prefer open floor plan").
-5. **Summarize the budget situation** — what is their range, are they \
+4. **Identify deal breakers** — items the buyer absolutely will not \
+   compromise on. Use direct quotes when possible (e.g., "Must have 3+ \
+   bedrooms", "Budget under $500k", "Needs a home library").
+5. **Identify nice-to-haves** — things the buyer would like but can flex on \
+   (e.g., "Pool would be great", "Prefer open floor plan").
+6. **Summarize the budget situation** — what is their range, are they \
    pre-approved, any constraints?
-6. **Assess overall buying readiness**:
+7. **Assess overall buying readiness**:
    - "exploring" — just starting to look, unclear on many preferences
    - "active" — actively searching, knows what they want
    - "ready_to_buy" — urgent, clear preferences, ready to make offers
-7. **Write a profile summary** — 2-3 sentences describing the ideal match \
+8. **Write a profile summary** — 2-3 sentences describing the ideal match \
    for this buyer, suitable for a real estate agent to use when searching \
-   listings.
+   listings. Mention specific features from both the transcript AND chat.
 
-If preferences are sparse, do your best with what you have and note the \
-gaps in the summary.
+IMPORTANT: Do not limit yourself to only the preferences already extracted. \
+The chat conversation often contains critical new information. Every \
+preference or requirement mentioned by the buyer should appear in your \
+scored_preferences list.
 """
 
 

@@ -211,6 +211,19 @@ async def generate_buyer_profile(
     else:
         overall_confidence = 0.0
 
+    # Save new preferences from profile back to the preferences table
+    existing_categories = {(p.category, p.value) for p in preferences}
+    for sp in scored:
+        if (sp["category"], sp["value"]) not in existing_categories:
+            new_pref = Preference(
+                session_id=session_id,
+                category=sp["category"],
+                value=sp["value"],
+                confidence=sp.get("confidence", "medium"),
+                source="chat",
+            )
+            db.add(new_pref)
+
     # Upsert BuyerProfile — replace if one already exists for this session
     existing_result = await db.exec(
         select(BuyerProfile)
