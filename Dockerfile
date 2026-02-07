@@ -22,8 +22,4 @@ COPY backend/ ./
 # Copy built frontend into static/
 COPY --from=frontend-build /app/frontend/dist ./static
 
-# Railway sets PORT dynamically
-ENV PORT=8000
-
-# Run migrations then start server
-CMD sh -c "cd /app && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"
+EXPOSE 8000
