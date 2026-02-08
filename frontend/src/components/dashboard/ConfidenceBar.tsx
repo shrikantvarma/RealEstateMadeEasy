@@ -1,15 +1,16 @@
+import { motion } from "framer-motion";
+
 interface ConfidenceBarProps {
   value: number; // 0-100
 }
 
 export function ConfidenceBar({ value }: ConfidenceBarProps) {
-  const segments = 10;
-  const filled = Math.round((value / 100) * segments);
+  const pct = value;
 
   const level =
     value >= 70 ? "high" : value >= 40 ? "medium" : "low";
 
-  const gradientVar =
+  const color =
     level === "high"
       ? "var(--success)"
       : level === "medium"
@@ -20,32 +21,27 @@ export function ConfidenceBar({ value }: ConfidenceBarProps) {
     level === "high" ? "High" : level === "medium" ? "Med" : "Low";
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2.5">
       <div
-        className="flex gap-0.5"
+        className="relative h-1.5 flex-1 max-w-[120px] rounded-full bg-surface-3 overflow-hidden"
         role="meter"
         aria-label={`Confidence: ${value} percent`}
         aria-valuenow={value}
         aria-valuemin={0}
         aria-valuemax={100}
       >
-        {Array.from({ length: segments }, (_, i) => (
-          <div
-            key={i}
-            className="h-2 w-1 rounded-sm transition-all"
-            style={{
-              backgroundColor:
-                i < filled ? gradientVar : "var(--muted)",
-              opacity: i < filled ? 1 : 0.3,
-              animationDelay: `${i * 30}ms`,
-            }}
-          />
-        ))}
+        <motion.div
+          className="absolute inset-y-0 left-0 rounded-full"
+          style={{ backgroundColor: color }}
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
+        />
       </div>
-      <span className="text-xs font-medium tabular-nums">
+      <span className="text-xs font-semibold tabular-nums" style={{ color }}>
         {value}%
       </span>
-      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className="text-[11px] text-muted-foreground">{label}</span>
     </div>
   );
 }

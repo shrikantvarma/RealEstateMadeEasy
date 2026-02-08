@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState, useCallback } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Upload, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Upload, Loader2, FileText, Sparkles, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -77,19 +78,23 @@ function NewSessionPage() {
   );
 
   return (
-    <div className="p-8 max-w-2xl">
-      <h1 className="text-2xl font-semibold tracking-tight mb-8">
-        New Session
-      </h1>
+    <div className="px-8 py-8 max-w-2xl">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold tracking-tight">New Session</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Upload a buyer conversation to extract preferences automatically.
+        </p>
+      </div>
 
       <div className="space-y-6">
+        {/* Buyer Name */}
         <div>
           <label
             htmlFor="buyer-name"
             className="text-sm font-medium mb-2 block"
           >
             Buyer Name{" "}
-            <span className="text-muted-foreground font-normal">
+            <span className="text-muted-foreground/70 font-normal">
               (optional)
             </span>
           </label>
@@ -98,10 +103,11 @@ function NewSessionPage() {
             placeholder="e.g., Sarah Martinez"
             value={buyerName}
             onChange={(e) => setBuyerName(e.target.value)}
-            className="bg-surface-3 rounded-xl border-border focus:border-accent focus:ring-accent/10"
+            className="bg-surface-2 rounded-xl border-border/50 h-11 focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all duration-200"
           />
         </div>
 
+        {/* Transcript */}
         <div>
           <label
             htmlFor="transcript"
@@ -112,45 +118,57 @@ function NewSessionPage() {
           <div className="relative">
             <Textarea
               id="transcript"
-              placeholder="Paste your conversation transcript here…"
+              placeholder="Paste your conversation transcript here..."
               value={transcript}
               onChange={(e) => {
                 setTranscript(e.target.value);
                 setFileName(null);
               }}
-              className="min-h-[240px] bg-surface-3 rounded-xl border-border font-mono text-sm focus:border-accent focus:shadow-[0_0_0_3px_rgba(var(--accent),0.1)] resize-y"
+              className="min-h-[240px] bg-surface-2 rounded-2xl border-border/50 font-mono text-sm leading-relaxed focus:border-accent focus:ring-2 focus:ring-accent/10 resize-y transition-all duration-200"
               autoComplete="off"
               spellCheck={false}
             />
-            <div className="absolute bottom-2 right-3 text-[11px] text-muted-foreground tabular-nums">
-              {wordCount} words / {charCount} chars
+            <div className="absolute bottom-3 right-4 flex items-center gap-3 text-[11px] text-muted-foreground/60 tabular-nums">
+              <span>{wordCount} words</span>
+              <span className="h-3 w-px bg-border" />
+              <span>{charCount} chars</span>
             </div>
           </div>
           {charCount > 0 && charCount < 100 && (
-            <p className="text-sm text-destructive mt-2">
+            <motion.p
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="text-sm text-destructive mt-2"
+            >
               Transcript seems too short. Paste the full conversation for best
               results.
-            </p>
+            </motion.p>
           )}
         </div>
 
+        {/* Divider */}
         <div className="flex items-center gap-4">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted-foreground">or</span>
-          <div className="h-px flex-1 bg-border" />
+          <div className="h-px flex-1 bg-border/50" />
+          <span className="text-xs text-muted-foreground/60 uppercase tracking-wide">or</span>
+          <div className="h-px flex-1 bg-border/50" />
         </div>
 
-        <div
+        {/* File drop zone */}
+        <motion.div
           onDragOver={(e) => {
             e.preventDefault();
             setDragOver(true);
           }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleFileDrop}
-          className={`rounded-xl border-2 border-dashed p-8 text-center cursor-pointer transition-all ${
+          animate={dragOver ? { scale: 1.01 } : { scale: 1 }}
+          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+          className={`rounded-2xl border-2 border-dashed p-10 text-center cursor-pointer transition-colors duration-200 ${
             dragOver
-              ? "border-accent bg-accent/5 scale-[1.01]"
-              : "border-border hover:border-border/80"
+              ? "border-accent bg-accent/5"
+              : fileName
+                ? "border-success/30 bg-success/5"
+                : "border-border/50 hover:border-accent/30 hover:bg-accent/3"
           }`}
           onClick={() => document.getElementById("file-input")?.click()}
           role="button"
@@ -167,43 +185,76 @@ function NewSessionPage() {
             onChange={handleFileInput}
             className="hidden"
           />
-          <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
           {fileName ? (
-            <p className="text-sm font-medium">{fileName}</p>
+            <div className="flex items-center justify-center gap-3">
+              <div className="rounded-xl bg-success/10 p-2.5">
+                <FileText className="h-5 w-5 text-success" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-medium">{fileName}</p>
+                <p className="text-xs text-muted-foreground">{wordCount} words loaded</p>
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFileName(null);
+                  setTranscript("");
+                }}
+                className="ml-2 rounded-lg p-1 text-muted-foreground hover:text-foreground hover:bg-surface-3 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              Drop a .txt or .pdf file here, or click to browse
-            </p>
+            <>
+              <div className="rounded-2xl bg-surface-3/60 p-3 mx-auto w-fit mb-3">
+                <Upload className="h-6 w-6 text-muted-foreground/60" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Drop a <span className="font-medium text-foreground/70">.txt</span> or{" "}
+                <span className="font-medium text-foreground/70">.pdf</span> file here, or click to browse
+              </p>
+            </>
           )}
-        </div>
+        </motion.div>
 
+        {/* Actions */}
         <div className="flex justify-end gap-3 pt-4">
           <Button
             variant="outline"
             onClick={() => navigate({ to: "/dashboard" })}
+            className="rounded-xl"
           >
             Cancel
           </Button>
           <Button
             disabled={!isValid || mutation.isPending}
             onClick={() => mutation.mutate()}
-            className="bg-accent text-accent-foreground hover:bg-accent/90 disabled:bg-surface-3 disabled:text-muted-foreground"
+            className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 disabled:bg-surface-3 disabled:text-muted-foreground shadow-elevation-1 hover:shadow-elevation-2 transition-all duration-200 gap-2 px-6"
           >
             {mutation.isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Analyzing…
+                <Loader2 className="h-4 w-4 animate-spin" />
+                Analyzing...
               </>
             ) : (
-              "Analyze →"
+              <>
+                <Sparkles className="h-4 w-4" />
+                Analyze Transcript
+                <ArrowRight className="h-3.5 w-3.5" />
+              </>
             )}
           </Button>
         </div>
 
         {mutation.isError && (
-          <p className="text-sm text-destructive">
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl bg-destructive/8 border border-destructive/15 px-4 py-3 text-sm text-destructive"
+          >
             {(mutation.error as Error).message}
-          </p>
+          </motion.div>
         )}
       </div>
     </div>

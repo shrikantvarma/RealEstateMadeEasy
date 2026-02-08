@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { ChevronRight } from "lucide-react";
 import type { SessionData } from "@/lib/api";
 import { StatusBadge } from "./StatusBadge";
 import { ConfidenceBar } from "./ConfidenceBar";
@@ -14,32 +15,44 @@ export function SessionCard({ session }: SessionCardProps) {
     <Link
       to="/dashboard/$sessionId"
       params={{ sessionId: session.id }}
-      className="block rounded-xl bg-surface-2 border border-border/50 p-5 shadow-elevation-1 hover:shadow-elevation-2 hover:-translate-y-0.5 active:shadow-elevation-1 active:scale-[0.99] transition-all cursor-pointer"
+      className="group block rounded-2xl bg-surface-2 border border-border/40 p-5 shadow-elevation-1 hover:shadow-elevation-2 hover:-translate-y-0.5 active:shadow-elevation-1 active:scale-[0.995] transition-all duration-300 cursor-pointer gradient-border"
     >
       <div className="flex items-start justify-between mb-2">
-        <div>
-          <span className="text-base font-medium">
-            {session.buyer_name || (
-              <span className="text-muted-foreground italic">
-                Unnamed Buyer
-              </span>
-            )}
-          </span>
-        </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">{timeAgo}</span>
+          <div className="h-9 w-9 rounded-xl bg-accent/8 flex items-center justify-center shrink-0">
+            <span className="text-sm font-semibold text-accent">
+              {(session.buyer_name || "U").charAt(0).toUpperCase()}
+            </span>
+          </div>
+          <div>
+            <span className="text-[15px] font-semibold tracking-tight">
+              {session.buyer_name || (
+                <span className="text-muted-foreground italic font-normal">
+                  Unnamed Buyer
+                </span>
+              )}
+            </span>
+            <span className="text-xs text-muted-foreground/70 block mt-0.5">
+              {timeAgo}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
           <StatusBadge status={session.status} />
+          <ChevronRight className="h-4 w-4 text-muted-foreground/30 group-hover:text-muted-foreground/60 group-hover:translate-x-0.5 transition-all duration-200" />
         </div>
       </div>
 
       {session.summary && (
-        <p className="text-sm text-muted-foreground mb-3 truncate max-w-[60ch]">
+        <p className="text-sm text-muted-foreground mb-3 truncate max-w-[60ch] pl-12">
           &ldquo;{session.summary}&rdquo;
         </p>
       )}
 
       {session.overall_confidence != null && (
-        <ConfidenceBar value={session.overall_confidence} />
+        <div className="pl-12">
+          <ConfidenceBar value={session.overall_confidence} />
+        </div>
       )}
     </Link>
   );

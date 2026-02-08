@@ -8,7 +8,7 @@ import {
   type FormEvent,
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Home, Send, Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Home, Send, Loader2, AlertCircle, CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -57,22 +57,36 @@ function TypingIndicator() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 8 }}
-      className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-surface-2 border border-border/50 w-fit max-w-[80px]"
+      className="flex items-start gap-2.5"
     >
-      {[0, 1, 2].map((i) => (
-        <motion.span
-          key={i}
-          className="block h-2 w-2 rounded-full bg-muted-foreground/50"
-          animate={{ y: [0, -6, 0] }}
-          transition={{
-            duration: 0.6,
-            repeat: Infinity,
-            delay: i * 0.15,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
+      <MiaAvatar />
+      <div className="flex items-center gap-1.5 px-4 py-3.5 rounded-2xl rounded-bl-md bg-surface-2 border border-border/30 shadow-elevation-1 w-fit">
+        {[0, 1, 2].map((i) => (
+          <motion.span
+            key={i}
+            className="block h-1.5 w-1.5 rounded-full bg-accent/50"
+            animate={{ y: [0, -5, 0] }}
+            transition={{
+              duration: 0.6,
+              repeat: Infinity,
+              delay: i * 0.15,
+              ease: "easeInOut",
+            }}
+          />
+        ))}
+      </div>
     </motion.div>
+  );
+}
+
+function MiaAvatar() {
+  return (
+    <div
+      className="h-7 w-7 rounded-full flex items-center justify-center shrink-0 shadow-elevation-1"
+      style={{ background: "var(--gradient-chat)" }}
+    >
+      <Sparkles className="h-3.5 w-3.5 text-white" />
+    </div>
   );
 }
 
@@ -89,14 +103,15 @@ function ChatBubble({ message }: { message: ChatMessageData }) {
       initial="hidden"
       animate="visible"
       layout="position"
-      className={cn("flex", isUser ? "justify-end" : "justify-start")}
+      className={cn("flex", isUser ? "justify-end" : "justify-start items-start gap-2.5")}
     >
+      {!isUser && <MiaAvatar />}
       <div
         className={cn(
-          "max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap break-words",
+          "max-w-[80%] sm:max-w-[70%] rounded-2xl px-4 py-3 text-[14px] leading-relaxed whitespace-pre-wrap break-words",
           isUser
-            ? "bg-accent text-accent-foreground rounded-br-md"
-            : "bg-surface-2 text-foreground border border-border/50 rounded-bl-md",
+            ? "bg-accent text-accent-foreground rounded-br-md shadow-elevation-1"
+            : "bg-surface-2 text-foreground border border-border/30 rounded-bl-md shadow-elevation-1",
         )}
       >
         {message.content}
@@ -116,12 +131,13 @@ function StreamingBubble({ content }: { content: string }) {
       initial="hidden"
       animate="visible"
       layout="position"
-      className="flex justify-start"
+      className="flex justify-start items-start gap-2.5"
     >
-      <div className="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-bl-md bg-surface-2 text-foreground border border-border/50 px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap break-words">
+      <MiaAvatar />
+      <div className="max-w-[80%] sm:max-w-[70%] rounded-2xl rounded-bl-md bg-surface-2 text-foreground border border-border/30 shadow-elevation-1 px-4 py-3 text-[14px] leading-relaxed whitespace-pre-wrap break-words">
         {content}
         <motion.span
-          className="inline-block ml-0.5 w-[2px] h-4 bg-accent align-text-bottom"
+          className="inline-block ml-0.5 w-[2px] h-4 bg-accent align-text-bottom rounded-full"
           animate={{ opacity: [1, 0] }}
           transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -380,22 +396,29 @@ function ChatPage() {
     <div className="min-h-screen h-screen bg-surface-1 flex flex-col">
       {/* Gradient accent line */}
       <div
-        className="h-0.5 shrink-0"
+        className="h-[3px] shrink-0"
         style={{ background: "var(--gradient-chat)" }}
       />
 
       {/* Header */}
-      <header className="shrink-0 backdrop-blur-xl bg-white/80 dark:bg-black/60 border-b border-border/50 px-4 py-3">
+      <header className="shrink-0 backdrop-blur-2xl bg-white/70 dark:bg-black/50 border-b border-border/30 px-4 py-3.5">
         <div className="max-w-2xl mx-auto flex items-center gap-3">
-          <div className="rounded-lg bg-accent/10 p-1.5">
-            <Home className="h-4 w-4 text-accent" />
+          <div
+            className="rounded-xl p-2 shadow-elevation-1"
+            style={{ background: "var(--gradient-chat)" }}
+          >
+            <Home className="h-4 w-4 text-white" />
           </div>
           <div>
-            <p className="font-medium text-sm leading-none">
+            <p className="font-semibold text-sm leading-none tracking-tight">
               RealEstateMadeEasy
             </p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Finding your perfect home
+            <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="absolute inset-0 rounded-full bg-success animate-ping opacity-40" />
+                <span className="relative h-1.5 w-1.5 rounded-full bg-success" />
+              </span>
+              Mia is ready to help
             </p>
           </div>
         </div>
@@ -458,22 +481,33 @@ function ChatPage() {
 
       {/* Input area */}
       {isComplete ? (
-        <div className="shrink-0 border-t border-border/50 bg-surface-2">
-          <div className="max-w-2xl mx-auto px-4 py-6 text-center">
-            <CheckCircle2 className="h-6 w-6 text-emerald-500 mx-auto mb-2" />
-            <p className="text-sm font-medium">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="shrink-0 border-t border-border/30 bg-surface-2/80 backdrop-blur-xl"
+        >
+          <div className="max-w-2xl mx-auto px-4 py-8 text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.1 }}
+              className="inline-flex items-center justify-center h-12 w-12 rounded-full bg-success/10 mb-3"
+            >
+              <CheckCircle2 className="h-6 w-6 text-success" />
+            </motion.div>
+            <p className="text-sm font-semibold tracking-tight">
               Thanks for sharing your preferences!
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1.5 max-w-xs mx-auto">
               Your agent now has a detailed profile to find you the perfect home.
             </p>
           </div>
-        </div>
+        </motion.div>
       ) : (
-        <div className="shrink-0 border-t border-border/50 bg-surface-2">
+        <div className="shrink-0 border-t border-border/30 bg-surface-2/80 backdrop-blur-xl">
           <form
             onSubmit={handleSubmit}
-            className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-2"
+            className="max-w-2xl mx-auto px-4 py-3 flex items-center gap-2.5"
           >
             {messages.length > 1 && (
               <Button
@@ -482,7 +516,7 @@ function ChatPage() {
                 size="sm"
                 disabled={isStreaming || finishMutation.isPending}
                 onClick={() => finishMutation.mutate()}
-                className="shrink-0 rounded-full text-xs h-10 px-4"
+                className="shrink-0 rounded-full text-xs h-10 px-4 border-border/40 hover:bg-surface-3 transition-all duration-200"
               >
                 {finishMutation.isPending ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -491,41 +525,48 @@ function ChatPage() {
                 )}
               </Button>
             )}
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder={
-                isStreaming ? "Waiting for response..." : "Type your message..."
-              }
-              disabled={isStreaming || finishMutation.isPending}
-              autoComplete="off"
-              className={cn(
-                "flex-1 bg-surface-3 rounded-full px-4 py-2.5 text-sm",
-                "placeholder:text-muted-foreground",
-                "border border-border/50",
-                "outline-none focus:border-accent focus:ring-2 focus:ring-accent/20",
-                "transition-all duration-200",
-                "disabled:opacity-50 disabled:cursor-not-allowed",
-              )}
-            />
-            <Button
-              type="submit"
-              size="icon"
-              disabled={isStreaming || !inputValue.trim() || finishMutation.isPending}
-              className={cn(
-                "h-10 w-10 rounded-full shrink-0 transition-all duration-200",
-                inputValue.trim() && !isStreaming
-                  ? "bg-accent text-accent-foreground hover:bg-accent/90"
-                  : "bg-muted text-muted-foreground",
-              )}
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder={
+                  isStreaming ? "Waiting for response..." : "Type your message..."
+                }
+                disabled={isStreaming || finishMutation.isPending}
+                autoComplete="off"
+                className={cn(
+                  "w-full bg-surface-3/60 rounded-full px-5 py-3 text-sm",
+                  "placeholder:text-muted-foreground/50",
+                  "border border-border/30",
+                  "outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/15 focus:bg-surface-2",
+                  "transition-all duration-200",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                )}
+              />
+            </div>
+            <motion.div
+              animate={inputValue.trim() && !isStreaming ? { scale: 1 } : { scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
             >
-              {isStreaming ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Send className="h-4 w-4" />
-              )}
-            </Button>
+              <Button
+                type="submit"
+                size="icon"
+                disabled={isStreaming || !inputValue.trim() || finishMutation.isPending}
+                className={cn(
+                  "h-10 w-10 rounded-full shrink-0 transition-all duration-300",
+                  inputValue.trim() && !isStreaming
+                    ? "bg-accent text-accent-foreground hover:bg-accent/90 shadow-elevation-1"
+                    : "bg-surface-3 text-muted-foreground/50",
+                )}
+              >
+                {isStreaming ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Send className="h-4 w-4" />
+                )}
+              </Button>
+            </motion.div>
           </form>
         </div>
       )}

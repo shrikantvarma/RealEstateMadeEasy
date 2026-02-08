@@ -1,6 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { ArrowLeft, Info, Loader2 } from "lucide-react";
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { ArrowLeft, Info, Loader2, Copy, Check, ExternalLink, Sparkles } from "lucide-react";
 import { api } from "@/lib/api";
 import type { PreferenceData } from "@/lib/api";
 import { StatusBadge } from "@/components/dashboard/StatusBadge";
@@ -19,6 +21,7 @@ const confidenceOrder: Record<PreferenceData["confidence"], number> = {
 
 function SessionDetailPage() {
   const { sessionId } = Route.useParams();
+  const [copied, setCopied] = useState(false);
 
   const { data: session, isLoading } = useQuery({
     queryKey: ["sessions", sessionId],
@@ -44,10 +47,19 @@ function SessionDetailPage() {
     enabled: !!session && session.status !== "parsing",
   });
 
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   if (isLoading) {
     return (
-      <div className="p-8 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+      <div className="p-8 flex items-center justify-center min-h-[50vh]">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground">Loading session...</p>
+        </div>
       </div>
     );
   }
@@ -69,97 +81,160 @@ function SessionDetailPage() {
     : [];
 
   return (
-    <div className="p-8 max-w-5xl">
+    <div className="px-8 py-8 max-w-5xl">
+      {/* Breadcrumb */}
       <div className="flex items-center gap-3 mb-8">
         <Link
           to="/dashboard"
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200 group"
         >
-          <ArrowLeft className="h-4 w-4 inline mr-1" />
+          <ArrowLeft className="h-3.5 w-3.5 group-hover:-translate-x-0.5 transition-transform duration-200" />
           Sessions
         </Link>
-        <span className="text-muted-foreground">/</span>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {session.buyer_name || "Unnamed Buyer"}
-        </h1>
-        <StatusBadge status={session.status} />
+        <span className="text-border">/</span>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold tracking-tight">
+            {session.buyer_name || "Unnamed Buyer"}
+          </h1>
+          <StatusBadge status={session.status} />
+        </div>
       </div>
 
       {session.status === "parsing" ? (
-        <div className="rounded-xl bg-surface-2 border border-border/50 p-12 text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-accent mx-auto mb-4" />
-          <p className="text-lg font-medium">Analyzing transcript...</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Extracting preferences and signals
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="rounded-2xl bg-surface-2 border border-border/40 p-16 text-center"
+        >
+          <div className="relative inline-block mb-5">
+            <Loader2 className="h-12 w-12 animate-spin text-accent" />
+            <motion.div
+              className="absolute inset-0 rounded-full"
+              style={{ border: "2px solid var(--accent)", opacity: 0.2 }}
+              animate={{ scale: [1, 1.5, 1], opacity: [0.2, 0, 0.2] }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </div>
+          <p className="text-lg font-semibold tracking-tight">Analyzing transcript...</p>
+          <p className="text-sm text-muted-foreground mt-1.5">
+            Extracting preferences, priorities, and buyer signals
           </p>
-        </div>
+        </motion.div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Left column — preferences */}
           <div className="space-y-4">
             <h2 className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
               Extracted Preferences
             </h2>
 
             {session.summary && (
-              <div className="flex items-start gap-2.5 rounded-xl bg-accent/8 border border-accent/15 px-4 py-3">
-                <Info className="h-4 w-4 text-accent mt-0.5 shrink-0" />
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-start gap-3 rounded-2xl bg-accent/5 border border-accent/10 px-4 py-3.5"
+              >
+                <div className="rounded-lg bg-accent/10 p-1.5 mt-0.5 shrink-0">
+                  <Info className="h-3.5 w-3.5 text-accent" />
+                </div>
                 <p className="text-sm text-foreground/80 leading-relaxed">
                   {session.summary}
                 </p>
-              </div>
+              </motion.div>
             )}
 
             {prefsLoading ? (
-              <div className="rounded-xl bg-surface-2 border border-border/50 p-6 flex items-center justify-center">
-                <Loader2 className="h-5 w-5 animate-spin text-accent" />
-              </div>
-            ) : sortedPreferences.length === 0 ? (
-              <div className="rounded-xl bg-surface-2 border border-border/50 p-6 text-center text-muted-foreground">
-                <p className="text-sm">
-                  No preferences extracted yet. Upload a transcript to get
-                  started.
-                </p>
-              </div>
-            ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {sortedPreferences.map((pref) => (
-                  <PreferenceCard
-                    key={pref.id}
-                    category={pref.category}
-                    value={pref.value}
-                    confidence={pref.confidence}
-                    source={pref.source}
-                    isConfirmed={pref.is_confirmed}
+                {[1, 2, 3, 4].map((i) => (
+                  <div
+                    key={i}
+                    className="h-24 rounded-2xl skeleton-shimmer"
+                    style={{ animationDelay: `${i * 100}ms` }}
                   />
                 ))}
               </div>
+            ) : sortedPreferences.length === 0 ? (
+              <div className="rounded-2xl bg-surface-2 border border-border/40 p-8 text-center">
+                <Sparkles className="h-6 w-6 text-muted-foreground/40 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">
+                  No preferences extracted yet.
+                </p>
+              </div>
+            ) : (
+              <motion.div
+                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                initial="hidden"
+                animate="visible"
+                variants={{
+                  hidden: { opacity: 0 },
+                  visible: { opacity: 1, transition: { staggerChildren: 0.05 } },
+                }}
+              >
+                {sortedPreferences.map((pref) => (
+                  <motion.div
+                    key={pref.id}
+                    variants={{
+                      hidden: { opacity: 0, y: 8 },
+                      visible: { opacity: 1, y: 0, transition: { duration: 0.25 } },
+                    }}
+                  >
+                    <PreferenceCard
+                      category={pref.category}
+                      value={pref.value}
+                      confidence={pref.confidence}
+                      source={pref.source}
+                      isConfirmed={pref.is_confirmed}
+                    />
+                  </motion.div>
+                ))}
+              </motion.div>
             )}
           </div>
 
+          {/* Right column — buyer profile */}
           <BuyerProfilePanel session={session} />
         </div>
       )}
 
+      {/* Chat Link Section */}
       {session.status !== "parsing" && (
-        <div className="mt-8 rounded-xl bg-surface-2 border border-border/50 p-5">
-          <h3 className="text-xs font-medium uppercase tracking-widest text-muted-foreground mb-3">
-            Chat Link
-          </h3>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mt-8 rounded-2xl bg-surface-2 border border-border/40 p-6 shadow-elevation-1"
+        >
+          <div className="flex items-center gap-2 mb-4">
+            <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+            <h3 className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+              Buyer Chat Link
+            </h3>
+          </div>
           <div className="flex items-center gap-3">
-            <code className="flex-1 bg-surface-3 rounded-lg px-3 py-2 text-sm font-mono truncate">
+            <div className="flex-1 bg-surface-3/80 rounded-xl px-4 py-2.5 font-mono text-sm text-foreground/80 truncate border border-border/30">
               {chatLink}
-            </code>
+            </div>
             <button
-              onClick={() => navigator.clipboard.writeText(chatLink)}
-              className="px-4 py-2 bg-accent text-accent-foreground text-sm font-medium rounded-lg hover:bg-accent/90 transition-colors"
+              onClick={() => handleCopy(chatLink)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-accent-foreground text-sm font-medium rounded-xl hover:bg-accent/90 active:scale-[0.98] transition-all duration-200 shadow-elevation-1"
             >
-              Copy
+              {copied ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="h-4 w-4" />
+                  Copy Link
+                </>
+              )}
             </button>
           </div>
-          <p className="text-xs text-muted-foreground mt-2">
-            Send this link to your buyer via text or email.
+          <p className="text-xs text-muted-foreground mt-3">
+            Send this link to your buyer via text or email to start the AI-guided conversation.
           </p>
-        </div>
+        </motion.div>
       )}
     </div>
   );
