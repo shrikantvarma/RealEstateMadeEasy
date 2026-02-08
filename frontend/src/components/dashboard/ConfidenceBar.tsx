@@ -10,11 +10,18 @@ export function ConfidenceBar({ value }: ConfidenceBarProps) {
   const level =
     value >= 70 ? "high" : value >= 40 ? "medium" : "low";
 
+  const gradient =
+    level === "high"
+      ? "linear-gradient(90deg, hsl(160 84% 39%), hsl(160 74% 50%))"
+      : level === "medium"
+        ? "linear-gradient(90deg, hsl(38 85% 48%), hsl(42 90% 58%))"
+        : "linear-gradient(90deg, hsl(0 72% 51%), hsl(0 65% 60%))";
+
   const color =
     level === "high"
       ? "var(--success)"
       : level === "medium"
-        ? "var(--warning)"
+        ? "var(--gold)"
         : "var(--destructive)";
 
   const label =
@@ -23,7 +30,7 @@ export function ConfidenceBar({ value }: ConfidenceBarProps) {
   return (
     <div className="flex items-center gap-2.5">
       <div
-        className="relative h-1.5 flex-1 max-w-[120px] rounded-full bg-surface-3 overflow-hidden"
+        className="relative h-2 flex-1 max-w-[120px] rounded-full bg-surface-3 overflow-hidden"
         role="meter"
         aria-label={`Confidence: ${value} percent`}
         aria-valuenow={value}
@@ -32,7 +39,7 @@ export function ConfidenceBar({ value }: ConfidenceBarProps) {
       >
         <motion.div
           className="absolute inset-y-0 left-0 rounded-full"
-          style={{ backgroundColor: color }}
+          style={{ background: gradient }}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}

@@ -64,7 +64,7 @@ function TypingIndicator() {
         {[0, 1, 2].map((i) => (
           <motion.span
             key={i}
-            className="block h-1.5 w-1.5 rounded-full bg-accent/50"
+            className="block h-1.5 w-1.5 rounded-full bg-gold/60"
             animate={{ y: [0, -5, 0] }}
             transition={{
               duration: 0.6,
@@ -110,7 +110,7 @@ function ChatBubble({ message }: { message: ChatMessageData }) {
         className={cn(
           "max-w-[80%] sm:max-w-[70%] rounded-2xl px-4 py-3 text-[14px] leading-relaxed whitespace-pre-wrap break-words",
           isUser
-            ? "bg-accent text-accent-foreground rounded-br-md shadow-elevation-1"
+            ? "bg-navy text-primary-foreground rounded-br-md shadow-elevation-1"
             : "bg-surface-2 text-foreground border border-border/30 rounded-bl-md shadow-elevation-1",
         )}
       >
@@ -137,7 +137,7 @@ function StreamingBubble({ content }: { content: string }) {
       <div className="max-w-[80%] sm:max-w-[70%] rounded-2xl rounded-bl-md bg-surface-2 text-foreground border border-border/30 shadow-elevation-1 px-4 py-3 text-[14px] leading-relaxed whitespace-pre-wrap break-words">
         {content}
         <motion.span
-          className="inline-block ml-0.5 w-[2px] h-4 bg-accent align-text-bottom rounded-full"
+          className="inline-block ml-0.5 w-[2px] h-4 bg-gold align-text-bottom rounded-full"
           animate={{ opacity: [1, 0] }}
           transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -362,7 +362,7 @@ function ChatPage() {
   if (isLoading && !initialised) {
     return (
       <div className="min-h-screen bg-surface-1 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-accent" />
+        <Loader2 className="h-8 w-8 animate-spin text-gold" />
       </div>
     );
   }
@@ -410,7 +410,7 @@ function ChatPage() {
             <Home className="h-4 w-4 text-white" />
           </div>
           <div>
-            <p className="font-semibold text-sm leading-none tracking-tight">
+            <p className="font-serif text-[15px] leading-none tracking-tight">
               RealEstateMadeEasy
             </p>
             <p className="text-[11px] text-muted-foreground mt-1 flex items-center gap-1.5">
@@ -539,7 +539,7 @@ function ChatPage() {
                   "w-full bg-surface-3/60 rounded-full px-5 py-3 text-sm",
                   "placeholder:text-muted-foreground/50",
                   "border border-border/30",
-                  "outline-none focus:border-accent/50 focus:ring-2 focus:ring-accent/15 focus:bg-surface-2",
+                  "outline-none focus:border-gold/50 focus:ring-2 focus:ring-gold/15 focus:bg-surface-2",
                   "transition-all duration-200",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
                 )}
@@ -556,7 +556,7 @@ function ChatPage() {
                 className={cn(
                   "h-10 w-10 rounded-full shrink-0 transition-all duration-300",
                   inputValue.trim() && !isStreaming
-                    ? "bg-accent text-accent-foreground hover:bg-accent/90 shadow-elevation-1"
+                    ? "bg-navy text-primary-foreground hover:bg-navy-light shadow-elevation-1"
                     : "bg-surface-3 text-muted-foreground/50",
                 )}
               >

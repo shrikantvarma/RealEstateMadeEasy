@@ -80,7 +80,7 @@ function NewSessionPage() {
   return (
     <div className="px-8 py-8 max-w-2xl">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight">New Session</h1>
+        <h1 className="font-serif text-2xl tracking-tight">New Session</h1>
         <p className="text-sm text-muted-foreground mt-1">
           Upload a buyer conversation to extract preferences automatically.
         </p>
@@ -103,7 +103,7 @@ function NewSessionPage() {
             placeholder="e.g., Sarah Martinez"
             value={buyerName}
             onChange={(e) => setBuyerName(e.target.value)}
-            className="bg-surface-2 rounded-xl border-border/50 h-11 focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all duration-200"
+            className="bg-surface-2 rounded-xl border-border/50 h-11 focus:border-gold focus:ring-2 focus:ring-gold/10 transition-all duration-200"
           />
         </div>
 
@@ -124,7 +124,7 @@ function NewSessionPage() {
                 setTranscript(e.target.value);
                 setFileName(null);
               }}
-              className="min-h-[240px] bg-surface-2 rounded-2xl border-border/50 font-mono text-sm leading-relaxed focus:border-accent focus:ring-2 focus:ring-accent/10 resize-y transition-all duration-200"
+              className="min-h-[240px] bg-surface-2 rounded-2xl border-border/50 font-mono text-sm leading-relaxed focus:border-gold focus:ring-2 focus:ring-gold/10 resize-y transition-all duration-200"
               autoComplete="off"
               spellCheck={false}
             />
@@ -165,10 +165,10 @@ function NewSessionPage() {
           transition={{ type: "spring", stiffness: 400, damping: 25 }}
           className={`rounded-2xl border-2 border-dashed p-10 text-center cursor-pointer transition-colors duration-200 ${
             dragOver
-              ? "border-accent bg-accent/5"
+              ? "border-gold bg-gold/5"
               : fileName
                 ? "border-success/30 bg-success/5"
-                : "border-border/50 hover:border-accent/30 hover:bg-accent/3"
+                : "border-border/50 hover:border-gold/30 hover:bg-gold/3"
           }`}
           onClick={() => document.getElementById("file-input")?.click()}
           role="button"
@@ -230,7 +230,7 @@ function NewSessionPage() {
           <Button
             disabled={!isValid || mutation.isPending}
             onClick={() => mutation.mutate()}
-            className="rounded-xl bg-accent text-accent-foreground hover:bg-accent/90 disabled:bg-surface-3 disabled:text-muted-foreground shadow-elevation-1 hover:shadow-elevation-2 transition-all duration-200 gap-2 px-6"
+            className="rounded-xl bg-navy text-primary-foreground hover:bg-navy-light disabled:bg-surface-3 disabled:text-muted-foreground shadow-elevation-1 hover:shadow-elevation-2 transition-all duration-200 gap-2 px-6"
           >
             {mutation.isPending ? (
               <>

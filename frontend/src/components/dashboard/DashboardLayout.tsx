@@ -33,27 +33,24 @@ const navItems = [
 
 function Sidebar({ currentPath }: { currentPath: string }) {
   return (
-    <aside className="w-[260px] bg-sidebar-background/80 backdrop-blur-xl border-r border-border/20 flex flex-col">
+    <aside className="w-[260px] bg-sidebar-background flex flex-col border-r border-sidebar-border">
       {/* Logo */}
       <div className="px-5 py-6 flex items-center gap-3">
-        <div
-          className="rounded-xl p-2 shadow-elevation-1"
-          style={{ background: "var(--gradient-hero)" }}
-        >
-          <Home className="h-4 w-4 text-white" />
+        <div className="rounded-xl bg-gold/15 p-2">
+          <Home className="h-4 w-4 text-gold" />
         </div>
         <div>
-          <span className="font-semibold text-sm tracking-tight block leading-none">
+          <span className="font-serif text-[17px] text-gradient-gold block leading-none">
             REME
           </span>
-          <span className="text-[10px] text-muted-foreground/60 leading-none mt-0.5 block">
+          <span className="text-[10px] text-sidebar-foreground/40 leading-none mt-1 block tracking-wider uppercase">
             Agent Dashboard
           </span>
         </div>
       </div>
 
       {/* Divider */}
-      <div className="mx-4 h-px bg-border/30" />
+      <div className="mx-4 h-px bg-sidebar-border" />
 
       {/* Navigation */}
       <nav className="flex-1 px-3 py-4 space-y-1">
@@ -65,15 +62,15 @@ function Sidebar({ currentPath }: { currentPath: string }) {
               to={item.to}
               className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 relative ${
                 isActive
-                  ? "bg-accent/10 text-accent"
-                  : "text-muted-foreground hover:bg-surface-3/80 hover:text-foreground"
+                  ? "bg-sidebar-accent text-gold"
+                  : "text-sidebar-foreground/60 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
               }`}
             >
               <AnimatePresence>
                 {isActive && (
                   <motion.div
                     layoutId="sidebar-active"
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-accent rounded-full"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 bg-gold rounded-full"
                     initial={{ opacity: 0, scaleY: 0 }}
                     animate={{ opacity: 1, scaleY: 1 }}
                     exit={{ opacity: 0, scaleY: 0 }}
@@ -81,7 +78,7 @@ function Sidebar({ currentPath }: { currentPath: string }) {
                   />
                 )}
               </AnimatePresence>
-              <item.icon className={`h-4 w-4 transition-colors ${isActive ? "text-accent" : "text-muted-foreground group-hover:text-foreground"}`} />
+              <item.icon className={`h-4 w-4 transition-colors ${isActive ? "text-gold" : "text-sidebar-foreground/40 group-hover:text-sidebar-foreground/70"}`} />
               {item.label}
             </Link>
           );
@@ -90,7 +87,7 @@ function Sidebar({ currentPath }: { currentPath: string }) {
         {/* Quick action */}
         <Link
           to="/dashboard/new"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-surface-3/80 transition-all duration-200 mt-2"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-sidebar-foreground/60 hover:text-gold hover:bg-sidebar-accent/60 transition-all duration-200 mt-2"
         >
           <Plus className="h-4 w-4" />
           New Session
@@ -98,10 +95,10 @@ function Sidebar({ currentPath }: { currentPath: string }) {
       </nav>
 
       {/* Footer */}
-      <div className="px-5 py-4 border-t border-border/20">
+      <div className="px-5 py-4 border-t border-sidebar-border">
         <div className="flex items-center gap-2">
           <div className="h-2 w-2 rounded-full bg-success animate-pulse" />
-          <span className="text-[11px] text-muted-foreground/60">v0.1.0</span>
+          <span className="text-[11px] text-sidebar-foreground/40">v0.1.0</span>
         </div>
       </div>
     </aside>

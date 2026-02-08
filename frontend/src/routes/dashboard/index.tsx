@@ -25,7 +25,7 @@ function SessionListPage() {
       {/* Header */}
       <div className="flex items-end justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Sessions</h1>
+          <h1 className="font-serif text-2xl tracking-tight">Sessions</h1>
           <p className="text-sm text-muted-foreground mt-1">
             {data && data.length > 0
               ? `${data.length} buyer ${data.length === 1 ? "session" : "sessions"}`
@@ -33,7 +33,7 @@ function SessionListPage() {
           </p>
         </div>
         <Link to="/dashboard/new">
-          <Button className="bg-accent text-accent-foreground hover:bg-accent/90 rounded-xl shadow-elevation-1 hover:shadow-elevation-2 transition-all duration-200 gap-2">
+          <Button className="bg-navy text-primary-foreground hover:bg-navy-light rounded-xl shadow-elevation-1 hover:shadow-elevation-2 transition-all duration-200 gap-2">
             <Plus className="h-4 w-4" />
             New Session
           </Button>
@@ -102,10 +102,10 @@ function EmptyState() {
           animate={{ y: [0, -3, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <Sparkles className="h-4 w-4 text-accent" />
+          <Sparkles className="h-4 w-4 text-gold" />
         </motion.div>
       </div>
-      <h2 className="text-xl font-bold tracking-tight mb-2">
+      <h2 className="font-serif text-xl tracking-tight mb-2">
         Ready to understand your buyers?
       </h2>
       <p className="text-sm text-muted-foreground mb-8 max-w-sm leading-relaxed">

@@ -34,8 +34,8 @@ const readinessConfig: Record<
   },
   active: {
     label: "Active",
-    bg: "bg-accent/10",
-    text: "text-accent",
+    bg: "bg-gold/10",
+    text: "text-gold",
   },
   ready_to_buy: {
     label: "Ready to Buy",
@@ -63,19 +63,19 @@ const itemVariants = {
 
 function ScoreBar({ score }: { score: number }) {
   const pct = (score / 10) * 100;
-  const color =
+  const gradient =
     score >= 7
-      ? "var(--success)"
+      ? "linear-gradient(90deg, hsl(160 84% 39%), hsl(160 74% 50%))"
       : score >= 4
-        ? "var(--warning)"
-        : "var(--destructive)";
+        ? "linear-gradient(90deg, hsl(38 85% 48%), hsl(42 90% 58%))"
+        : "linear-gradient(90deg, hsl(0 72% 51%), hsl(0 65% 60%))";
 
   return (
     <div className="flex items-center gap-2 min-w-0">
-      <div className="relative h-1.5 flex-1 rounded-full bg-surface-3 overflow-hidden">
+      <div className="relative h-2 flex-1 rounded-full bg-surface-3 overflow-hidden">
         <motion.div
           className="absolute inset-y-0 left-0 rounded-full"
-          style={{ backgroundColor: color }}
+          style={{ background: gradient }}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.5, ease: "easeOut" as const }}
@@ -155,7 +155,7 @@ export function BuyerProfilePanel({ session }: BuyerProfilePanelProps) {
         </h2>
 
         <div className="rounded-xl border-2 border-dashed border-border bg-surface-3 p-8 text-center">
-          <Sparkles className="h-8 w-8 text-accent mx-auto mb-3 opacity-60" />
+          <Sparkles className="h-8 w-8 text-gold mx-auto mb-3 opacity-60" />
           <p className="text-sm text-muted-foreground mb-4">
             Preferences extracted. Generate a scored buyer profile to see
             deal-breakers, priorities, and readiness.
@@ -163,7 +163,7 @@ export function BuyerProfilePanel({ session }: BuyerProfilePanelProps) {
           <Button
             onClick={() => generateMutation.mutate()}
             disabled={generateMutation.isPending}
-            className="bg-accent text-accent-foreground hover:bg-accent/90"
+            className="bg-navy text-primary-foreground hover:bg-navy-light"
           >
             {generateMutation.isPending ? (
               <>
@@ -201,7 +201,7 @@ export function BuyerProfilePanel({ session }: BuyerProfilePanelProps) {
           Buyer Profile
         </h2>
         <div className="rounded-xl bg-surface-2 border border-border/50 p-12 flex flex-col items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-accent mb-2" />
+          <Loader2 className="h-6 w-6 animate-spin text-gold mb-2" />
           <p className="text-sm text-muted-foreground">Loading profile...</p>
         </div>
       </div>
@@ -261,11 +261,11 @@ export function BuyerProfilePanel({ session }: BuyerProfilePanelProps) {
 
       {/* Profile Summary */}
       <motion.div variants={itemVariants}>
-        <Card className="gap-0 rounded-xl border-accent/20 bg-accent/5 py-0 shadow-none">
+        <Card className="gap-0 rounded-xl border-gold/20 bg-gold/5 py-0 shadow-none">
           <div className="px-4 py-4">
             <div className="flex items-center gap-2 mb-2">
-              <Sparkles className="h-3.5 w-3.5 text-accent" />
-              <span className="text-[10px] font-medium uppercase tracking-widest text-accent">
+              <Sparkles className="h-3.5 w-3.5 text-gold" />
+              <span className="text-[10px] font-medium uppercase tracking-widest text-gold">
                 Summary
               </span>
             </div>
@@ -413,7 +413,7 @@ export function BuyerProfilePanel({ session }: BuyerProfilePanelProps) {
                     </div>
                     <ScoreBar score={pref.score} />
                     {pref.notes && (
-                      <p className="text-xs text-muted-foreground leading-relaxed pl-0.5">
+                      <p className="note-aside text-xs leading-relaxed">
                         {pref.notes}
                       </p>
                     )}

@@ -19,8 +19,8 @@ export function SessionCard({ session }: SessionCardProps) {
     >
       <div className="flex items-start justify-between mb-2">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-accent/8 flex items-center justify-center shrink-0">
-            <span className="text-sm font-semibold text-accent">
+          <div className="h-9 w-9 rounded-xl bg-navy/8 flex items-center justify-center shrink-0">
+            <span className="text-sm font-semibold text-navy">
               {(session.buyer_name || "U").charAt(0).toUpperCase()}
             </span>
           </div>
